@@ -142,5 +142,5 @@ function populateDB(provincias: ProvinciumModel[], localidades: LocalidadModel[]
     }).catch(console.log)
   }).catch(console.log)
 }
-extractDataCAT(JSON.parse(fs.readFileSync(path.join(__dirname, './CAT.json')).toString()));
+// extractDataCAT(JSON.parse(fs.readFileSync(path.join(__dirname, './CAT.json')).toString()));
 
