@@ -1,7 +1,7 @@
 // COMO ACTUAR ANTE DUPLICADOS
 // EL CODIGOPROVINCIA/LOCALIDAD VIENE DEL CODIGO POSTAL? LO TENIAMOS MAL EN LA PLANTILLA?
 import { BibliotecaModel, LocalidadModel, ProvinciumModel } from './../../IEIBack/src/models/biblioteca.models';
-import { BibliotecaEUS } from './eusmodel';
+import { BibliotecaEUS } from './catmodel';
 const fs = require('fs');
 import path from "path";
 const { Biblioteca, Localidad, Provincia } = require('../../IEIBack/src/sqldb');
