@@ -5,7 +5,7 @@ import {
   LocalidadModel,
   ProvinciumModel,
 } from "./../../IEIBack/src/models/biblioteca.models";
-import { BibliotecaCAT } from "./catmodel";
+import { BibliotecaCAT, Propietat } from "./catmodel";
 const fs = require("fs");
 import path from "path";
 const { Biblioteca, Localidad, Provincia } = require("../../IEIBack/src/sqldb");
@@ -15,11 +15,10 @@ export function extractDataCAT(rawData: BibliotecaCAT[]) {
 
   const provincias: ProvinciumModel[] = getProvincias(rawData);
   const localidades: LocalidadModel[] = getLocalidades(rawData);
-  // const bibliotecas: BibliotecaModel[] = getBibliotecas(rawData);
+  const bibliotecas: BibliotecaModel[] = getBibliotecas(rawData);
 
   console.log("Populating CAT_DATA");
-  populateDB(provincias, localidades, []);
-  // populateDB(provincias, localidades, bibliotecas);
+  populateDB(provincias, localidades, bibliotecas);
 }
 
 function getProvincias(bibliotecas?: BibliotecaCAT[]): ProvinciumModel[] {
@@ -52,9 +51,7 @@ function getLocalidades(bibliotecas: BibliotecaCAT[]): LocalidadModel[] {
   bibliotecas.forEach((biblioteca) => {
     const codPostal = biblioteca.cpostal._text;
     const codLocalidad = codPostal.slice(2);
-
     const nombreProvincia = provincias.filter(provincia => provincia.codigoProvincia === codPostal.slice(0,2))[0].nombreProvincia;
-
 
     const localidad: LocalidadModel = {
       codigoLocalidad: codLocalidad,
@@ -90,40 +87,52 @@ function getLocalidades(bibliotecas: BibliotecaCAT[]): LocalidadModel[] {
   return localidadesUnicas;
 }
 
-// function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
-//   let bibliotecasRes: BibliotecaModel[] = [];
+function getTipo(propietats: Propietat[]) {
+  let tipo = "Pública"
+  propietats.forEach(propietat => {
+    if (propietat.Titularitat) {
+      if (propietat.Titularitat === 'Privada') {
+        tipo = "Privada"
+      }
+    }
+  })
+  return tipo;
+}
 
-//   bibliotecas.forEach(biblioteca => {
-//     const provincia: BibliotecaModel = {
-//       nombre: biblioteca.documentName,
-//       tipo: 'Pública',
-//       direccion: biblioteca.address,
-//       codigoPostal: biblioteca.postalcode.replace('.', ''),
-//       longitud: +biblioteca.lonwgs84,
-//       latitud: +biblioteca.latwgs84,
-//       telefono: biblioteca.phone.replace(/ /g, '').slice(0, 9),
-//       email: biblioteca.email,
-//       descripcion: biblioteca.documentDescription,
-//       LocalidadNombreLocalidad: biblioteca.municipality.replace(/ /g, '').replace(/\//g, '-'),
-//     }
+function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
+  let bibliotecasRes: BibliotecaModel[] = [];
 
-//     bibliotecasRes.push(provincia)
-//   })
+  bibliotecas.forEach(biblioteca => {
+    const provincia: BibliotecaModel = {
+      nombre: biblioteca.nom._text,
+      tipo: getTipo(biblioteca.propietats),
+      direccion: biblioteca.via._text,
+      codigoPostal: biblioteca.cpostal._text,
+      longitud: +biblioteca.longitud._text,
+      latitud: +biblioteca.latitud._text,
+      telefono: biblioteca.telefon1?._text || '',
+      email: biblioteca.email._text,
+      descripcion: (biblioteca.alies._text + ' ' + biblioteca.categoria._text.replace(/|/g, ' ')).trim(),
+      LocalidadNombreLocalidad: biblioteca.poblacio._text.replace(/ /g, '').replace(/\//g, '-'),
+    }
 
-//   const bibliotecasUnicas: BibliotecaModel[] = []
+    bibliotecasRes.push(provincia)
+  })
 
-//   bibliotecasRes.forEach(biblioteca => {
-//     const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
-//       return bibliotecaUnica.nombre === biblioteca.nombre
-//     })
+  const bibliotecasUnicas: BibliotecaModel[] = []
 
-//     if (!repeated.length) {
-//       bibliotecasUnicas.push(biblioteca)
-//     }
-//   })
+  bibliotecasRes.forEach(biblioteca => {
+    const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
+      return bibliotecaUnica.nombre === biblioteca.nombre
+    })
 
-//   return bibliotecasUnicas;
-// }
+    if (!repeated.length) {
+      bibliotecasUnicas.push(biblioteca)
+    }
+  })
+
+  return bibliotecasUnicas;
+}
 
 function populateDB(
   provincias: ProvinciumModel[],
