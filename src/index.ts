@@ -42,8 +42,6 @@ function checkIfLocalidadNoExiste(localidades: LocalidadModel[], bibliotecas: Bi
       res.push(nb)
     }
   })
-
-  console.log(res, "GHGHHG");
 }
 
 function getProvincias(bibliotecas?: BibliotecaCAT[]): ProvinciumModel[] {
