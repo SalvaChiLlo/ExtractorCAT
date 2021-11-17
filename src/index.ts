@@ -19,6 +19,31 @@ export function extractDataCAT(rawData: BibliotecaCAT[]) {
 
   console.log("Populating CAT_DATA");
   populateDB(provincias, localidades, bibliotecas);
+  setTimeout(() => {
+    checkIfLocalidadNoExiste(localidades, bibliotecas)
+
+  }, 10000);
+}
+
+function checkIfLocalidadNoExiste(localidades: LocalidadModel[], bibliotecas: BibliotecaModel[]) {
+  const nombresBib: string[] = [];
+  const nombresLocalidad: string[] = []
+  const res: string[] = [];
+  bibliotecas.forEach(biblioteca => {
+    nombresBib.push(biblioteca.LocalidadNombreLocalidad)
+  })
+
+  localidades.forEach(localidad => {
+    nombresLocalidad.push(localidad.nombreLocalidad)
+  })
+
+  nombresBib.forEach(nb => {
+    if (!nombresLocalidad.includes(nb)) {
+      res.push(nb)
+    }
+  })
+
+  console.log(res, "GHGHHG");
 }
 
 function getProvincias(bibliotecas?: BibliotecaCAT[]): ProvinciumModel[] {
@@ -51,7 +76,7 @@ function getLocalidades(bibliotecas: BibliotecaCAT[]): LocalidadModel[] {
   bibliotecas.forEach((biblioteca) => {
     const codPostal = biblioteca.cpostal._text;
     const codLocalidad = codPostal.slice(2);
-    const nombreProvincia = provincias.filter(provincia => provincia.codigoProvincia === codPostal.slice(0,2))[0].nombreProvincia;
+    const nombreProvincia = provincias.filter(provincia => provincia.codigoProvincia === codPostal.slice(0, 2))[0].nombreProvincia;
 
     const localidad: LocalidadModel = {
       codigoLocalidad: codLocalidad,
@@ -73,7 +98,7 @@ function getLocalidades(bibliotecas: BibliotecaCAT[]): LocalidadModel[] {
     const repeated = localidadesUnicas.filter((localUnica) => {
       return (
         localUnica.ProvinciumNombreProvincia ===
-          localidad.ProvinciumNombreProvincia &&
+        localidad.ProvinciumNombreProvincia &&
         localUnica.codigoLocalidad === localidad.codigoLocalidad &&
         localUnica.nombreLocalidad === localidad.nombreLocalidad
       );
@@ -113,7 +138,7 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
       telefono: biblioteca.telefon1?._text || '',
       email: biblioteca.email._text,
       descripcion: (biblioteca.alies._text + ' ' + biblioteca.categoria._text.replace(/|/g, ' ')).trim(),
-      LocalidadNombreLocalidad: biblioteca.poblacio._text.replace(/ /g, '').replace(/\//g, '-'),
+      LocalidadNombreLocalidad: biblioteca.poblacio._text.replace(/\//g, '-'),
     }
 
     bibliotecasRes.push(provincia)
@@ -121,17 +146,17 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
 
   const bibliotecasUnicas: BibliotecaModel[] = []
 
-  bibliotecasRes.forEach(biblioteca => {
-    const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
-      return bibliotecaUnica.nombre === biblioteca.nombre
-    })
+  // bibliotecasRes.forEach(biblioteca => {
+  //   const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
+  //     return bibliotecaUnica.nombre === biblioteca.nombre
+  //   })
 
-    if (!repeated.length) {
-      bibliotecasUnicas.push(biblioteca)
-    }
-  })
+  //   if (!repeated.length) {
+  //     bibliotecasUnicas.push(biblioteca)
+  //   }
+  // })
 
-  return bibliotecasUnicas;
+  return bibliotecasRes;
 }
 
 function populateDB(
