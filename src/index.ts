@@ -144,17 +144,17 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
 
   const bibliotecasUnicas: BibliotecaModel[] = []
 
-  // bibliotecasRes.forEach(biblioteca => {
-  //   const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
-  //     return bibliotecaUnica.nombre === biblioteca.nombre
-  //   })
+  bibliotecasRes.forEach(biblioteca => {
+    const repeated = bibliotecasUnicas.filter(bibliotecaUnica => {
+      return bibliotecaUnica.nombre === biblioteca.nombre
+    })
 
-  //   if (!repeated.length) {
-  //     bibliotecasUnicas.push(biblioteca)
-  //   }
-  // })
+    if (!repeated.length) {
+      bibliotecasUnicas.push(biblioteca)
+    }
+  })
 
-  return bibliotecasRes;
+  return bibliotecasUnicas;
 }
 
 function populateDB(
@@ -174,6 +174,7 @@ function populateDB(
           console.log("SUCCESS POPULATING LOCALIDADES");
           Biblioteca.bulkCreate(bibliotecas, {
             updateOnDuplicate: [
+              "nombre",
               "tipo",
               "direccion",
               "codigoPostal",
