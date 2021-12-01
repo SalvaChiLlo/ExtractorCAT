@@ -8,6 +8,7 @@ import {
 import { BibliotecaCAT, Propietat } from "./catmodel";
 const fs = require("fs");
 import path from "path";
+import { convertXMLToJSON } from "../../IEICAT/src";
 const { Biblioteca, Localidad, Provincia } = require("../../IEIBack/src/sqldb");
 
 export function extractDataCAT(rawData: BibliotecaCAT[]) {
@@ -194,4 +195,12 @@ function populateDB(
     })
     .catch(console.log);
 }
-// extractDataCAT(JSON.parse(fs.readFileSync(path.join(__dirname, './CAT.json')).toString()));
+
+
+function testExtractor() {
+  const rawData = fs.readFileSync(path.join(__dirname, '../CAT.xml')).toString();
+  const parsedData = convertXMLToJSON(rawData);
+  extractDataCAT(parsedData);
+}
+
+// testExtractor();
