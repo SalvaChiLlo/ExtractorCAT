@@ -11,7 +11,7 @@ import path from "path";
 import { convertXMLToJSON } from "../../IEICAT/src";
 const { Biblioteca, Localidad, Provincia } = require("../../IEIBack/src/sqldb");
 
-export function extractDataCAT(rawData: BibliotecaCAT[]) {
+export async function extractDataCAT(rawData: BibliotecaCAT[]) {
   console.log("Extracting CAT_DATA");
 
   const provincias: ProvinciumModel[] = getProvincias(rawData);
@@ -19,7 +19,7 @@ export function extractDataCAT(rawData: BibliotecaCAT[]) {
   const bibliotecas: BibliotecaModel[] = getBibliotecas(rawData);
 
   console.log("Populating CAT_DATA");
-  populateDB(provincias, localidades, bibliotecas);
+  await populateDB(provincias, localidades, bibliotecas);
   setTimeout(() => {
     checkIfLocalidadNoExiste(localidades, bibliotecas)
 
@@ -158,44 +158,39 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
   return bibliotecasUnicas;
 }
 
-function populateDB(
-  provincias: ProvinciumModel[],
-  localidades: LocalidadModel[],
-  bibliotecas: BibliotecaModel[]
-) {
-  Provincia.bulkCreate(provincias, {
-    ignoreDuplicates: true,
-  })
-    .then(() => {
-      console.log("SUCCESS POPULATING PROVINCIAS");
-      Localidad.bulkCreate(localidades, {
-        ignoreDuplicates: true,
-      })
-        .then(() => {
-          console.log("SUCCESS POPULATING LOCALIDADES");
-          Biblioteca.bulkCreate(bibliotecas, {
-            updateOnDuplicate: [
-              "nombre",
-              "tipo",
-              "direccion",
-              "codigoPostal",
-              "longitud",
-              "latitud",
-              "telefono",
-              "email",
-              "descripcion",
-            ],
-          })
-            .then(() => {
-              console.log("SUCCESS POPULATING BIBLIOTECAS");
-            })
-            .catch(console.log);
-        })
-        .catch(console.log);
-    })
-    .catch(console.log);
+async function populateDB(provincias: ProvinciumModel[], localidades: LocalidadModel[], bibliotecas: BibliotecaModel[]) {
+  const prov = await Provincia.bulkCreate(
+    provincias,
+    {
+      ignoreDuplicates: true
+    }
+  )
+  console.log('SUCCESS POPULATING PROVINCIAS', prov.length);
+  const pob = await Localidad.bulkCreate(
+    localidades,
+    {
+      ignoreDuplicates: true
+    }
+  )
+  console.log('SUCCESS POPULATING LOCALIDADES', pob.length);
+  const bibl = await Biblioteca.bulkCreate(
+    bibliotecas,
+    {
+      updateOnDuplicate: [
+        'nombre',
+        'tipo',
+        'direccion',
+        'codigoPostal',
+        'longitud',
+        'latitud',
+        'telefono',
+        'email',
+        'descripcion',
+      ]
+    }
+  )
+  console.log('SUCCESS POPULATING BIBLIOTECAS', bibl.length);
 }
-
 
 function testExtractor() {
   const rawData = fs.readFileSync(path.join(__dirname, '../CAT.xml')).toString();
