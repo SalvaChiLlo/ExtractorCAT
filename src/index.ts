@@ -24,6 +24,8 @@ export async function extractDataCAT(rawData: BibliotecaCAT[]) {
     checkIfLocalidadNoExiste(localidades, bibliotecas)
 
   }, 10000);
+  return { numLocalidades: localidades.length, numProvincias: provincias.length }
+
 }
 
 function checkIfLocalidadNoExiste(localidades: LocalidadModel[], bibliotecas: BibliotecaModel[]) {
