@@ -138,7 +138,8 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
       latitud: +biblioteca.latitud._text,
       telefono: biblioteca.telefon1?._text || '',
       email: biblioteca.email._text,
-      descripcion: (biblioteca.alies._text + ' ' + biblioteca.categoria._text.replace(/|/g, ' ')).trim(),
+      // descripcion: (biblioteca.alies._text + ' ' + biblioteca.categoria._text.replace(/|/g, ' ')).trim(),
+      descripcion: JSON.stringify(biblioteca.propietats),
       LocalidadNombreLocalidad: biblioteca.poblacio._text.replace(/\//g, '-'),
     }
 
