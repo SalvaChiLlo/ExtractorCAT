@@ -140,6 +140,7 @@ function getBibliotecas(bibliotecas: BibliotecaCAT[]): BibliotecaModel[] {
       email: biblioteca.email._text,
       // descripcion: (biblioteca.alies._text + ' ' + biblioteca.categoria._text.replace(/|/g, ' ')).trim(),
       descripcion: JSON.stringify(biblioteca.propietats),
+      web: biblioteca.web?._attributes?.url,
       LocalidadNombreLocalidad: biblioteca.poblacio._text.replace(/\//g, '-'),
     }
 
